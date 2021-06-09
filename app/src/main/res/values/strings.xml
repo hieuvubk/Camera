@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Camera</string>
+    <string name="intro_text">Film Menu</string>
+    <string name="fuji_c200_description">Green with tinges of blue and muted reds</string>
+    <string name="kodak_colorplus200_description">Tinges of red or yellow</string>
+    <string name="kodak_proimage100_description">Natural colors with emphasis on greens</string>
+    <string name="fuji_c200_name">Fuji C200</string>
+    <string name="kodak_colorplus200_name">Kodak ColorPlus 200</string>
+    <string name="kodak_proimage100_name">Kodak ProImage 100</string>
+    <string name="flash">Flash</string>
+</resources>

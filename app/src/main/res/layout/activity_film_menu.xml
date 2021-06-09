@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FilmMenu">
+
+    <TextView
+        android:id="@+id/textintro"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/intro_text"
+        android:textSize="@dimen/text_heading"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/fuji_c200"
+        android:layout_width="113dp"
+        android:layout_height="113dp"
+        android:layout_below="@id/textintro"
+
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:contentDescription="@string/fuji_c200_description"
+        android:onClick="choose_fuji_c200"
+        android:src="@drawable/fuji_c200"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textintro" />
+
+    <TextView
+        android:id="@+id/textView2"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="36dp"
+        android:layout_toRightOf="@id/fuji_c200"
+        android:padding="@dimen/padding_wide"
+        android:text="@string/fuji_c200_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/fuji_c200"
+        app:layout_constraintTop_toBottomOf="@+id/textintro" />
+
+    <ImageView
+        android:id="@+id/kodak_colorplus200"
+        android:layout_width="113dp"
+        android:layout_height="113dp"
+        android:layout_below="@id/fuji_c200"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:contentDescription="@string/kodak_colorplus200_description"
+        android:onClick="choose_kodak_colorplus200"
+        android:padding="@dimen/padding_regular"
+        android:src="@drawable/kodak_colorplus200"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fuji_c200" />
+
+    <TextView
+        android:id="@+id/textView"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/fuji_c200"
+        android:layout_marginTop="48dp"
+        android:layout_toRightOf="@id/kodak_colorplus200"
+        android:padding="@dimen/padding_wide"
+        android:text="@string/kodak_colorplus200_description"
+        app:layout_constraintStart_toEndOf="@+id/kodak_colorplus200"
+        app:layout_constraintTop_toBottomOf="@+id/fuji_c200" />
+
+    <ImageView
+        android:id="@+id/kodak_proimage100"
+        android:layout_width="113dp"
+        android:layout_height="113dp"
+        android:layout_below="@id/kodak_colorplus200"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="36dp"
+        android:contentDescription="@string/kodak_proimage100_description"
+        android:onClick="choose_kodak_proimage100"
+        android:padding="@dimen/padding_regular"
+        android:src="@drawable/kodak_proimage100"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/kodak_colorplus200" />
+
+    <TextView
+        android:id="@+id/textView9"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/kodak_colorplus200"
+        android:layout_marginTop="48dp"
+        android:layout_toRightOf="@id/kodak_proimage100"
+        android:padding="@dimen/padding_wide"
+        android:text="@string/kodak_proimage100_description"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/kodak_proimage100"
+        app:layout_constraintTop_toBottomOf="@+id/kodak_colorplus200" />
+
+    <TextView
+        android:id="@+id/textView4"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/kodak_colorplus200"
+
+        android:layout_marginTop="12dp"
+        android:layout_toRightOf="@id/kodak_proimage100"
+        android:text="@string/fuji_c200_name"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/kodak_proimage100"
+        app:layout_constraintTop_toTopOf="@+id/fuji_c200" />
+
+    <TextView
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/kodak_colorplus200"
+        android:layout_marginTop="12dp"
+        android:layout_toRightOf="@id/kodak_proimage100"
+        android:text="@string/kodak_colorplus200_name"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/kodak_proimage100"
+        app:layout_constraintTop_toTopOf="@+id/kodak_colorplus200" />
+
+    <TextView
+        android:id="@+id/textView3"
+        style="@style/Widget.AppCompat.TextView.SpinnerItem"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/kodak_colorplus200"
+        android:layout_marginTop="12dp"
+        android:layout_toRightOf="@id/kodak_proimage100"
+        android:text="@string/kodak_proimage100_name"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toEndOf="@+id/kodak_proimage100"
+        app:layout_constraintTop_toTopOf="@+id/kodak_proimage100" />
+
+    <TextView
+        android:id="@+id/fuji_c200_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="@+id/fuji_c200"
+        app:layout_constraintStart_toStartOf="@+id/fuji_c200"
+        app:layout_constraintTop_toBottomOf="@+id/fuji_c200" />
+
+    <TextView
+        android:id="@+id/kodak_colorplus200_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="@+id/kodak_colorplus200"
+        app:layout_constraintStart_toStartOf="@+id/kodak_colorplus200"
+        app:layout_constraintTop_toBottomOf="@+id/kodak_colorplus200" />
+
+    <TextView
+        android:id="@+id/kodak_proimage100_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="@+id/kodak_proimage100"
+        app:layout_constraintStart_toStartOf="@+id/kodak_proimage100"
+        app:layout_constraintTop_toBottomOf="@+id/kodak_proimage100" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
