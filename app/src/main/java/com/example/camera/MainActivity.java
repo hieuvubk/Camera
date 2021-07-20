@@ -3,13 +3,17 @@ package com.example.camera;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.math.MathUtils;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -28,6 +32,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -41,22 +47,32 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import com.example.camera.filters.Filter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.wysaid.myUtils.ImageUtil;
+import org.wysaid.nativePort.CGENativeLibrary;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.Array;
-import java.net.ContentHandler;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-
+    public static final String EXTRA_MESSAGE
+            = "com.example.android.twoactivities.extra.MESSAGE";
+    JSONObject data;
+    int imageCount;
     private Button btnCapture;
     private TextureView textureView;
 
@@ -80,8 +96,12 @@ public class MainActivity extends AppCompatActivity {
     SwitchCompat flashSwitch;
     boolean flashStatus;
 
+    SwitchCompat focusOrExposure;
+    boolean checkFocusOrExposure;
+
     //Save to FILE
     private File file;
+    private File negativeFile;
     private static final int REQUEST_CAMERA_PERMISSION = 200;
     private boolean mFlashSupported;
     private Handler mBackgroundHandler;
@@ -89,6 +109,16 @@ public class MainActivity extends AppCompatActivity {
 
     int minExposure;
     int maxExposure;
+    
+    float mDist = 0;
+    float testZoom = 1;
+
+    float pointerX;
+    float pointerY;
+    int focus = 0;
+
+    int sensitive = 50;
+
 
     CameraDevice.StateCallback stateCallback = new CameraDevice.StateCallback() {
         @Override
@@ -119,11 +149,32 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Intent intent = getIntent();
         String message = intent.getStringExtra(FilmMenu.EXTRA_MESSAGE);
+        try {
+            data = new JSONObject(message);
+            imageCount = data.getInt("count");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         TextView textView = findViewById(R.id.film_name);
-        textView.setText(message);
+        try {
+            textView.setText(data.getString("name"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ImageView roll = findViewById(R.id.roll);
+        try {
+            if(data.getString("symbol").equals("fuji_c200"))
+                roll.setImageResource(R.drawable.a);
+            if(data.getString("symbol").equals("kodak_colorplus200"))
+                roll.setImageResource(R.drawable.b);
+            if(data.getString("symbol").equals("kodak_proimage100"))
+                roll.setImageResource(R.drawable.c);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         flashSwitch = findViewById(R.id.flash);
         flashSwitch.setAlpha(0);
@@ -143,6 +194,16 @@ public class MainActivity extends AppCompatActivity {
                 }
         );
 
+        focusOrExposure = findViewById(R.id.focus_or_exposure);
+        focusOrExposure.setAlpha(0);
+        focusOrExposure.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                checkFocusOrExposure = focusOrExposure.isChecked() ? true : false;
+            }
+        });
+
+
         ImageView iso = findViewById(R.id.iso);
         iso.setImageResource(R.drawable.iso200);
 
@@ -150,90 +211,41 @@ public class MainActivity extends AppCompatActivity {
         //From Java 1.4 , you can use keyword 'assert' to check expression true or false
         assert textureView != null;
         textureView.setSurfaceTextureListener(textureListener);
-        textView.setOnTouchListener(new View.OnTouchListener() {
+
+        textureView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                handleTouch(event);
+                try {
+                    handleTouch(event);
+                } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
         });
-        btnCapture = (Button) findViewById(R.id.btnCapture);
+
+        btnCapture = (Button) findViewById(R.id.btnCapture2);
         btnCapture.setAlpha(0);
         btnCapture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                takePicture();
-            }
-        });
-
-        SeekBar zoomBar = findViewById(R.id.zoom_bar);
-        zoomBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 try {
-                    setZoom(progress);
-                } catch (CameraAccessException e) {
+                    if(data.getInt("count") < 24) {
+                        imageCount += 1;
+                        takePicture();
+                        CharSequence text = "Taken " + String.valueOf(imageCount) + " / 24 pictures";
+                        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        CharSequence text = "The roll of film has been used up, please scan!";
+                        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+                    }
+                } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                TextView zoom = findViewById(R.id.zoom_values);
-                float x = 1 + (float) progress / 100;
-                String val = "x" + Float.toString(x);
-                zoom.setText(val);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        SeekBar focusBar = findViewById(R.id.focus_bar);
-        focusBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                setFocusDistance(progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
-            }
-        });
-
-        SeekBar sensitiveBar = findViewById(R.id.sensitive_bar);
-        sensitiveBar.setProgress(50);
-        sensitiveBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                try {
-                    setExposureSensitive(progress);
-                } catch (CameraAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-
             }
         });
     }
-    
 
     private void takePicture() {
         if (cameraDevice == null)
@@ -244,16 +256,13 @@ public class MainActivity extends AppCompatActivity {
             Size[] jpegSizes = null;
             if (characteristics != null)
                 jpegSizes = characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-                        .getOutputSizes(ImageFormat.RAW_SENSOR);
+                        .getOutputSizes(ImageFormat.JPEG);
 
             //Capture image with custom size
-            int width = 640;
-            int height = 480;
-            if (jpegSizes != null && jpegSizes.length > 0) {
-                width = jpegSizes[0].getWidth();
-                height = jpegSizes[0].getHeight();
-            }
-            final ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.RAW_SENSOR, 1);
+            int width = 3000;
+            int height = 4000;
+
+            ImageReader reader = ImageReader.newInstance(width, height, ImageFormat.JPEG, 1);
             List<Surface> outputSurface = new ArrayList<>(2);
             outputSurface.add(reader.getSurface());
             outputSurface.add(new Surface(textureView.getSurfaceTexture()));
@@ -262,9 +271,6 @@ public class MainActivity extends AppCompatActivity {
             captureBuilder.addTarget(reader.getSurface());
             captureBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
 
-            //Check check
-//            captureBuilder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
-//            captureBuilder.set(CaptureRequest.SCALER_CROP_REGION, new Rect(0, 0, 2000, 1500));
             if (flashStatus)
                 captureBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_TORCH);
             else captureBuilder.set(CaptureRequest.FLASH_MODE, CameraMetadata.FLASH_MODE_OFF);
@@ -272,8 +278,10 @@ public class MainActivity extends AppCompatActivity {
             //Check orientation base on device
             int rotation = getWindowManager().getDefaultDisplay().getRotation();
             captureBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
-
-            file = new File(Environment.getExternalStorageDirectory() + "/" + UUID.randomUUID().toString() + ".jpg");
+            String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
+            String fileName = timeStamp + ".jpg";
+            file = new File(data.getString("path") + fileName);
+            negativeFile = new File(data.getString("lab") + "/" + fileName);
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
@@ -287,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
-                    } catch (IOException e) {
+                    } catch (IOException | JSONException e) {
                         e.printStackTrace();
                     } finally {
                         {
@@ -297,14 +305,21 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                private void save(byte[] bytes) throws IOException {
-                    OutputStream outputStream = null;
+                private void save(byte[] bytes) throws IOException, JSONException {
+                    OutputStream outputStream1 = null;
+                    OutputStream outputStream2 = null;
                     try {
-                        outputStream = new FileOutputStream(file);
-                        outputStream.write(bytes);
+                        outputStream1 = new FileOutputStream(file);
+                        outputStream1.write(bytes);
+                        outputStream2 = new FileOutputStream(negativeFile);
+                        outputStream2.write(bytes);
                     } finally {
-                        if (outputStream != null)
-                            outputStream.close();
+                        if (outputStream1 != null)
+                            outputStream1.close();
+                        if (outputStream2 != null)
+                            outputStream2.close();
+                        addEffect(negativeFile, "@curve R(0, 0)(97, 97)(255, 255)RGB(0, 125)(255, 0) @adjust whitebalance 1 0.8 ");
+                        addEffect(file, data.getString("filter"));
                     }
                 }
             };
@@ -314,11 +329,9 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCaptureCompleted(@NonNull CameraCaptureSession session, @NonNull CaptureRequest request, @NonNull TotalCaptureResult result) {
                     super.onCaptureCompleted(session, request, result);
-                    Toast.makeText(MainActivity.this, "Saved " + file, Toast.LENGTH_SHORT).show();
                     createCameraPreview();
                 }
             };
-
             cameraDevice.createCaptureSession(outputSurface, new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession cameraCaptureSession) {
@@ -328,15 +341,11 @@ public class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
                 }
-
                 @Override
                 public void onConfigureFailed(@NonNull CameraCaptureSession cameraCaptureSession) {
-
                 }
             }, mBackgroundHandler);
-
-
-        } catch (CameraAccessException e) {
+        } catch (CameraAccessException | JSONException e) {
             e.printStackTrace();
         }
     }
@@ -348,10 +357,6 @@ public class MainActivity extends AppCompatActivity {
             texture.setDefaultBufferSize(imageDimension.getWidth(), imageDimension.getHeight());
             Surface surface = new Surface(texture);
             captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-
-
-//            captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION,  new Rect(0, 0, 2000, 1500));
-
             captureRequestBuilder.addTarget(surface);
             cameraDevice.createCaptureSession(Arrays.asList(surface), new CameraCaptureSession.StateCallback() {
                 @Override
@@ -376,8 +381,6 @@ public class MainActivity extends AppCompatActivity {
         if (cameraDevice == null)
             Toast.makeText(this, "Error", Toast.LENGTH_SHORT).show();
         captureRequestBuilder.set(CaptureRequest.CONTROL_MODE, CaptureRequest.CONTROL_MODE_AUTO);
-//        captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION,  new Rect(0, 0, 2000, 1500));
-
         try {
             cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), null, mBackgroundHandler);
         } catch (CameraAccessException e) {
@@ -475,23 +478,24 @@ public class MainActivity extends AppCompatActivity {
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
     }
 
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        try {
-//            CameraCharacteristics cameraCharacteristics;
-//            Rect rect = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
-//            if (rect == null) return false;
-//        }
-//    }
-
-    private void setZoom(int progress) throws CameraAccessException {
+    private void handleZoom(MotionEvent event) throws CameraAccessException {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics(cameraId);
             Rect mSensorSize = cameraCharacteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
 
-            float zoom = 1 + (float) progress / 100;
-            float newZoom = MathUtils.clamp(zoom, 1.0f, 2.0f);
+            float newDist = getFingerSpacing(event);
+            if (newDist > mDist) {
+                // zoom in
+                if (testZoom < 2)
+                    testZoom += 0.05;
+            } else if (newDist < mDist) {
+                // zoom out
+                if (testZoom > 1)
+                    testZoom -= 0.05;
+            }
+            mDist = newDist;
+            float newZoom = MathUtils.clamp(testZoom, 1.0f, 2.0f);
 
             int centerX = mSensorSize.width() / 2;
             int centerY = mSensorSize.height() / 2;
@@ -512,12 +516,22 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void setFocusDistance(int progress) {
+    private void handleFocus(MotionEvent event) {
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
         try {
             CameraCharacteristics cameraCharacteristics = manager.getCameraCharacteristics(cameraId);
             float minimumLens = cameraCharacteristics.get(CameraCharacteristics.LENS_INFO_MINIMUM_FOCUS_DISTANCE);
-            float num = (((float)progress) * minimumLens / 100);
+
+            float newY = event.getY();
+            if(newY > pointerY) {
+                focus += 3;
+            }
+            if(newY < pointerY) {
+                focus -= 3;
+            }
+            pointerY = newY;
+
+            float num = (((float)focus) * minimumLens / 100);
             captureRequestBuilder.set(CaptureRequest.LENS_FOCUS_DISTANCE, num);
             cameraCaptureSessions.setRepeatingRequest(captureRequestBuilder.build(), captureCallback, mBackgroundHandler);
         } catch (Exception e) {
@@ -538,8 +552,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void setExposureSensitive(int progress) throws CameraAccessException {
-        float exposureAdjustment = (float) (progress - 50) / 50;
+    private void handleExposureSensitive(MotionEvent event) throws CameraAccessException {
+        float newY= event.getY();
+        if(newY> pointerY) {
+            sensitive -= 3;
+        }
+        if(newY < pointerY) {
+            sensitive += 3;
+        }
+        pointerY = newY;
+        float exposureAdjustment = (float) (sensitive - 50) / 50;
         float result = (float) exposureAdjustment * maxExposure;
         captureRequestBuilder.set(CaptureRequest.CONTROL_AE_MODE, CameraCharacteristics.CONTROL_AE_MODE_ON);
         captureRequestBuilder.set(CaptureRequest.CONTROL_AE_LOCK, false);
@@ -548,8 +570,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void handleTouch(MotionEvent event) {
+    private void handleTouch(MotionEvent event) throws CameraAccessException {
+        int action = event.getAction();
 
+        if (event.getPointerCount() > 1) {
+            // handle multi-touch events
+            if (action == MotionEvent.ACTION_POINTER_DOWN) {
+                mDist = getFingerSpacing(event);
+            } else if (action == MotionEvent.ACTION_MOVE) {
+                handleZoom(event);
+            }
+        } else {
+            // handle single touch events
+            if (action == MotionEvent.ACTION_DOWN) {
+                pointerY = event.getY();
+                captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CameraMetadata.CONTROL_AF_MODE_OFF);
+            }
+            else if(action == MotionEvent.ACTION_MOVE) {
+                if(checkFocusOrExposure)
+                    handleFocus(event);
+                else
+                    handleExposureSensitive(event);
+            }
+        }
+    }
+
+    private float getFingerSpacing(MotionEvent event) {
+        float x = event.getX(0) - event.getX(1);
+        float y = event.getY(0) - event.getY(1);
+        return (float)Math.sqrt(x * x + y * y);
+    }
+
+    public void moveToGallery(View view) throws JSONException {
+        Intent intent = new Intent(this, Gallery.class);
+        String message = data.getString("lab");
+        intent.putExtra("com.example.android.twoactivities.extra.MESSAGE", message);
+        startActivityForResult(intent, 1);
+    }
+
+    public void addEffect(File file, String lut) throws IOException {
+        String filePath = file.getPath();
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        Bitmap result = CGENativeLibrary.filterImage_MultipleEffects(bitmap, lut, 1.0f);
+        ImageUtil.saveBitmap(result, file.getPath());
     }
 }
 

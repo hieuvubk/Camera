@@ -1,0 +1,20 @@
+{
+  "1": {
+    "name": "fuji_c200",
+    "iso": 200,
+    "luts": "",
+    "count": 0
+  },
+  "2": {
+    "name": "kodak_colorplus200",
+    "iso": 200,
+    "luts": "",
+    "count": 0
+  },
+  "3": {
+    "name": "kodak-proimage100",
+    "iso": 100,
+    "luts": "",
+    "count": 0
+  }
+}

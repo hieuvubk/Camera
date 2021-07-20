@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.camera">
 
-
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_INTERNAL_STORAGE" />
+
     <uses-feature android:name="android.hardware.camera2" />
 
     <application
@@ -24,27 +24,22 @@
             </intent-filter>
         </activity>
 
-
-        <activity android:name=".MainActivity"
-            android:label = "Main Activity"
+        <activity
+            android:name=".MainActivity"
+            android:label="Main Activity"
             android:parentActivityName=".FilmMenu">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".FilmMenu" />
         </activity>
 
-
-
-<!--        <activity android:name=".MainActivity">-->
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
-
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
-<!--        </activity>-->
-
-
-
+        <activity android:name=".Gallery"
+            android:label="Gallery"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
     </application>
 
 </manifest>
