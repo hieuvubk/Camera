@@ -10,15 +10,22 @@ import android.content.res.AssetManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import com.example.camera.adapter.GalleryViewAdapter;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.wysaid.common.Common;
 import org.wysaid.nativePort.CGENativeLibrary;
 
@@ -36,6 +43,7 @@ public class Gallery extends AppCompatActivity {
     private RecyclerView imagesRV;
     private GalleryViewAdapter imageRVAdapter;
     String path;
+    JSONObject data;
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
     @Override
@@ -44,8 +52,13 @@ public class Gallery extends AppCompatActivity {
         setContentView(R.layout.activity_gallery);
 
         Intent intent = getIntent();
-        path = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
 
+        try {
+            data = new JSONObject(intent.getStringExtra(MainActivity.EXTRA_MESSAGE));
+            path = data.getString("lab");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         imagePaths = new ArrayList<>();
         imagesRV = findViewById(R.id.idRVImages);
         try {
@@ -123,5 +136,29 @@ public class Gallery extends AppCompatActivity {
     }
 
 
+    public void scan(View view) throws JSONException {
+        if(data.getInt("count") == 24) {
+            MediaPlayer mp = MediaPlayer.create(Gallery.this, R.raw.scan);
+            mp.start();
+            String fileName = Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/" + data.getString("symbol");
+            File file = new File(fileName);
+            MediaScannerConnection.scanFile(getApplicationContext(),
+                    new String[]{file.toString()},
+                    null, null);
+            File dir = new File(path);
+            if (dir.isDirectory())
+            {
+                String[] children = dir.list();
+                for (int i = 0; i < children.length; i++)
+                {
+                    new File(dir, children[i]).delete();
+                }
+            }
+        }
+        else {
+            Toast.makeText(Gallery.this, "Can't scan photos now, taken " + String.valueOf(data.getInt("count")), Toast.LENGTH_SHORT).show();
 
+        }
+
+    }
 }

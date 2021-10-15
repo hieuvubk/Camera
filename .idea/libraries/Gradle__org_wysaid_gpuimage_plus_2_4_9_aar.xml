@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="Gradle: org.wysaid:gpuimage-plus:2.4.9@aar">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../.gradle/caches/transforms-2/files-2.1/2025e790e20d2eca4b5cb68fd655a8da/jetified-gpuimage-plus-2.4.9/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-2/files-2.1/2025e790e20d2eca4b5cb68fd655a8da/jetified-gpuimage-plus-2.4.9/res" />
+      <root url="file://$PROJECT_DIR$/../.gradle/caches/transforms-2/files-2.1/2025e790e20d2eca4b5cb68fd655a8da/jetified-gpuimage-plus-2.4.9/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/org.wysaid/gpuimage-plus/2.4.9/2aa9485c5f1996ae04b82806fb1ac6d4d50d1e1b/gpuimage-plus-2.4.9-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/../.gradle/caches/modules-2/files-2.1/org.wysaid/gpuimage-plus/2.4.9/fe0619f80a961c345421cb7aaf2923535a4a6115/gpuimage-plus-2.4.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

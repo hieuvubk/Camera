@@ -3,12 +3,9 @@ package com.example.camera;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.math.MathUtils;
-
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -29,11 +26,8 @@ import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -44,11 +38,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import com.example.camera.filters.Filter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,7 +57,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
     public static final String EXTRA_MESSAGE
@@ -203,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         ImageView iso = findViewById(R.id.iso);
         iso.setImageResource(R.drawable.iso200);
 
@@ -229,19 +218,15 @@ public class MainActivity extends AppCompatActivity {
         btnCapture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                try {
-                    if(data.getInt("count") < 24) {
-                        imageCount += 1;
-                        takePicture();
-                        CharSequence text = "Taken " + String.valueOf(imageCount) + " / 24 pictures";
-                        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        CharSequence text = "The roll of film has been used up, please scan!";
-                        Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
+                if(imageCount < 24) {
+                    imageCount += 1;
+                    takePicture();
+                    CharSequence text = "Taken " + String.valueOf(imageCount) + " / 24 pictures";
+                    Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    CharSequence text = "The roll of film has been used up, please scan!";
+                    Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -602,8 +587,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void moveToGallery(View view) throws JSONException {
+        data.remove("count");
+        data.put("count", imageCount);
         Intent intent = new Intent(this, Gallery.class);
-        String message = data.getString("lab");
+        String message = data.toString();
         intent.putExtra("com.example.android.twoactivities.extra.MESSAGE", message);
         startActivityForResult(intent, 1);
     }

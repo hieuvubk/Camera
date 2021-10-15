@@ -14,13 +14,17 @@
         android:background="@color/black">
     </androidx.recyclerview.widget.RecyclerView>
 
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="155dp"
-        android:layout_height="94dp"
-        android:src="@drawable/fab"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="148dp"
-        tools:layout_editor_absoluteY="234dp" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/ic_baseline_print_24"
+        app:backgroundTint="@color/material_on_primary_emphasis_medium"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="scan"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
