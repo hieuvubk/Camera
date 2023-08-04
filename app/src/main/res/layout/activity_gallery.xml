@@ -24,7 +24,8 @@
         app:backgroundTint="@color/material_on_primary_emphasis_medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:onClick="scan"/>
+        android:onClick="scan"
+        android:contentDescription="Gallery"/>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

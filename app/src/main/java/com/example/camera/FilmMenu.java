@@ -52,7 +52,7 @@ public class FilmMenu extends AppCompatActivity {
         data.put("count", countImage("kodak_proimage100"));
         data.put("name", getString(R.string.kodak_proimage100_name));
         data.put("path", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/kodak_proimage100/");
-        data.put("lab", Environment.getExternalStorageDirectory() + "/kodak_proimage100_negative");
+        data.put("lab", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/kodak_proimage100_negative/");
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_MESSAGE, data.toString());
@@ -66,7 +66,7 @@ public class FilmMenu extends AppCompatActivity {
         data.put("count", countImage("kodak_colorplus200"));
         data.put("name", getString(R.string.kodak_colorplus200_name));
         data.put("path", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/kodak_colorplus200/");
-        data.put("lab", Environment.getExternalStorageDirectory() + "/kodak_colorplus200_negative");
+        data.put("lab", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/kodak_colorplus200_negative/");
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_MESSAGE, data.toString());
@@ -80,7 +80,7 @@ public class FilmMenu extends AppCompatActivity {
         data.put("count", countImage(  "fuji_c200"));
         data.put("name", getString(R.string.fuji_c200_name));
         data.put("path", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/fuji_c200/");
-        data.put("lab", Environment.getExternalStorageDirectory() + "/fuji_c200_negative");
+        data.put("lab", Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_PICTURES + "/fuji_c200_negative/");
 
         Intent intent = new Intent(this, MainActivity.class);
         intent.putExtra(EXTRA_MESSAGE, data.toString());

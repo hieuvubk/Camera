@@ -50,11 +50,11 @@ public class Gallery extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_gallery);
-
         Intent intent = getIntent();
 
         try {
             data = new JSONObject(intent.getStringExtra(MainActivity.EXTRA_MESSAGE));
+            Toast.makeText(Gallery.this, data.toString(), Toast.LENGTH_SHORT).show();
             path = data.getString("lab");
         } catch (JSONException e) {
             e.printStackTrace();

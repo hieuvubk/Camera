@@ -28,6 +28,7 @@ import android.media.ImageReader;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 import android.util.Range;
 import android.util.Size;
 import android.util.SparseIntArray;
@@ -213,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnCapture = (Button) findViewById(R.id.btnCapture2);
+        btnCapture = (Button) findViewById(R.id.btnCapture);
         btnCapture.setAlpha(0);
         btnCapture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -266,7 +267,13 @@ public class MainActivity extends AppCompatActivity {
             String timeStamp = new SimpleDateFormat("ddMMyyyy_HHmmss").format(new Date());
             String fileName = timeStamp + ".jpg";
             file = new File(data.getString("path") + fileName);
-            negativeFile = new File(data.getString("lab") + "/" + fileName);
+            File negativeDir = new File(data.getString("lab"));
+            if(!negativeDir.exists()) {
+                negativeDir.mkdirs();
+            }
+            negativeFile = new File(data.getString("lab") + fileName);
+            Log.i("file name", data.getString("path"));
+            Log.i("file name negative", data.getString("lab"));
             ImageReader.OnImageAvailableListener readerListener = new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader imageReader) {
@@ -584,6 +591,15 @@ public class MainActivity extends AppCompatActivity {
         float x = event.getX(0) - event.getX(1);
         float y = event.getY(0) - event.getY(1);
         return (float)Math.sqrt(x * x + y * y);
+    }
+
+    public void moveToFilmMenu(View view) throws JSONException {
+        data.remove("count");
+        data.put("count", imageCount);
+        Intent intent = new Intent(this, FilmMenu.class);
+        String message = data.toString();
+        intent.putExtra("com.example.android.twoactivities.extra.MESSAGE", message);
+        startActivityForResult(intent, 1);
     }
 
     public void moveToGallery(View view) throws JSONException {
